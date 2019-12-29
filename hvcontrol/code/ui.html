@@ -1,0 +1,28 @@
+<html>
+
+<p>Central Vac Power Controller GUI</p>
+
+<p>Current state: off</p>
+
+<form action="ui.html">
+  <input type="hidden" name="csrf_token" value="123456">
+
+  Command:
+  <select name="command">
+    <option value="on">ON</option>
+    <option value="off">OFF</option>
+    <!-- force off,  force  on... -->
+  </select>
+
+  Duration:
+  <select name="duration">
+    <option value="1000">1s</option>
+    <option value="2000">2s</option>
+    <option value="10000">10s</option>
+  </select>
+  <input type="submit" value="Submit">
+</form>
+
+<p>Response Token ID: 123456</p>
+
+</html>

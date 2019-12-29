@@ -1,0 +1,49 @@
+@startuml
+
+skinparam state {
+ FontName<<class_ortho>>    Impact
+ BorderColor<<class_ortho>> #AA0000
+ BorderColor Black
+}
+
+note top of ROOT
+Full state path to current diagram being exported:
+ROOT
+end note
+
+state "ROOT" as ROOT {
+  state "DISABLED" as DISABLED {
+    DISABLED  : ENTER / rec_entry_time();
+    DISABLED  : ENTER / clear_requests();
+  }
+  DISABLED --> TIMED_OFF  : [enabled_req]
+  state "ENABLED" as ENABLED {
+    state "TIMED_OFF" as TIMED_OFF {
+      TIMED_OFF  : ENTER / { \n  rec_entry_time();\n  cool_down_duration += secs(2);\n  //clamp(cool_down_duration, secs(4), secs(30));\n  set_onoff_timeout_dur(cool_down_duration);\n}
+    }
+    TIMED_OFF --> OFF_READY  : [onoff_timed_out]
+    state "DEC_TIMEOUT" as DEC_TIMEOUT {
+      state "OFF_READY" as OFF_READY {
+        OFF_READY  : ENTER / rec_entry_time();
+      }
+      OFF_READY --> ON  : [on_req]
+      state "ON" as ON {
+        ON  : ENTER / rec_entry_time();
+        ON  : ENTER / turn_on_output()
+        ON  : [pop_onoff_if_req_on()] / set_onoff_timeout_from_req()
+        ON  : EXIT / turn_off_output()
+      }
+      ON --> TIMED_OFF  : [pop_onoff_if_req_off() OR\nonoff_timed_out]
+      DEC_TIMEOUT  : DO[time_in_state() > secs(30)] / {\n  dec_duration(cool_down_duration);\n}
+    }
+    ENABLED  : [pop_xable_if_req_enable()] / set_enabled_timeout_from_req()
+    ENABLED  : DO / dec_duration(onoff_time_left); dec_duration(enable_time_left);
+  }
+  ENABLED --> DISABLED  : [pop_xable_if_req_disable() OR\nenabled_timed_out]
+  ENABLED --> DISABLED_BAD_SWITCH  : [cool_down_duration > secs(15)]
+  state "DISABLED_BAD_SWITCH" as DISABLED_BAD_SWITCH {
+    DISABLED_BAD_SWITCH  : ENTER / rec_entry_time();
+  }
+  ROOT  : [true] / sm->event_handled = true; //for loop efficiency
+}
+@enduml

@@ -1,0 +1,307 @@
+INPUT EVENTS:
+  DO
+  ENTER
+  EXIT
+
+------------------------------------------
+
+this.hsm.inputHsm : 
+{
+	"states": [
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [],
+			"isInitialState": false,
+			"id": "n0",
+			"label": "ROOT",
+			"parentId": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "true",
+					"action": null,
+					"nextInputStateId": "n0::n3",
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": true,
+			"id": "n0::n1",
+			"parentId": "n0",
+			"label": "PSEUDO_INIT",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [
+						"enter"
+					],
+					"guard": null,
+					"action": "rec_entry_time();",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [
+						"enter"
+					],
+					"guard": null,
+					"action": "clear_requests();",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "enabled_req",
+					"action": null,
+					"nextInputStateId": "n0::n4",
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": false,
+			"id": "n0::n3",
+			"parentId": "n0",
+			"label": "DISABLED",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "pop_xable_if_req_enable()",
+					"action": "set_enabled_timeout_from_req()",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [
+						"do"
+					],
+					"guard": null,
+					"action": "dec_duration(onoff_time_left); dec_duration(enable_time_left);",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "pop_xable_if_req_disable() OR\r\nenabled_timed_out",
+					"action": null,
+					"nextInputStateId": "n0::n3",
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "cool_down_duration > secs(15)",
+					"action": null,
+					"nextInputStateId": "n0::n5",
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": false,
+			"id": "n0::n4",
+			"parentId": "n0",
+			"label": "ENABLED",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "true",
+					"action": null,
+					"nextInputStateId": "n0::n4::n1",
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": true,
+			"id": "n0::n4::n0",
+			"parentId": "n0::n4",
+			"label": "PSEUDO_INIT",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [
+						"enter"
+					],
+					"guard": null,
+					"action": "{ \r\n  rec_entry_time();\r\n  cool_down_duration += secs(2);\r\n  //clamp(cool_down_duration, secs(4), secs(30));\r\n  set_onoff_timeout_dur(cool_down_duration);\r\n}",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "onoff_timed_out",
+					"action": null,
+					"nextInputStateId": "n0::n4::n3::n0",
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": false,
+			"id": "n0::n4::n1",
+			"parentId": "n0::n4",
+			"label": "TIMED_OFF",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [
+						"do"
+					],
+					"guard": "time_in_state() > secs(30)",
+					"action": "{\r\n  dec_duration(cool_down_duration);\r\n}",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": false,
+			"id": "n0::n4::n3",
+			"parentId": "n0::n4",
+			"label": "DEC_TIMEOUT",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [
+						"enter"
+					],
+					"guard": null,
+					"action": "rec_entry_time();",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "on_req",
+					"action": null,
+					"nextInputStateId": "n0::n4::n3::n1",
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": false,
+			"id": "n0::n4::n3::n0",
+			"parentId": "n0::n4::n3",
+			"label": "OFF_READY",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [
+						"enter"
+					],
+					"guard": null,
+					"action": "rec_entry_time();",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [
+						"enter"
+					],
+					"guard": null,
+					"action": "turn_on_output()",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "pop_onoff_if_req_on()",
+					"action": "set_onoff_timeout_from_req()",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [
+						"exit"
+					],
+					"guard": null,
+					"action": "turn_off_output()",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				},
+				{
+					"order": 1000000,
+					"triggers": [],
+					"guard": "pop_onoff_if_req_off() OR\r\nonoff_timed_out",
+					"action": null,
+					"nextInputStateId": "n0::n4::n1",
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": false,
+			"id": "n0::n4::n3::n1",
+			"parentId": "n0::n4::n3",
+			"label": "ON",
+			"orthogonal_order": null
+		},
+		{
+			"groupIsCollapsed": false,
+			"eventHandlers": [
+				{
+					"order": 1000000,
+					"triggers": [
+						"enter"
+					],
+					"guard": null,
+					"action": "rec_entry_time();",
+					"nextInputStateId": null,
+					"stopsPropagation": false
+				}
+			],
+			"isInitialState": false,
+			"id": "n0::n5",
+			"parentId": "n0",
+			"label": "DISABLED_BAD_SWITCH",
+			"orthogonal_order": null
+		}
+	],
+	"varsStructInnerText": "\r\n  uint32_t state_entered_at;      //ms\r\n  int32_t cool_down_duration;     //ms\r\n  int32_t onoff_time_left;        //ms\r\n  int32_t enable_time_left;       //ms\r\n  bool relay_output;              //active high\r\n  uint32_t step_duration;         //ms\r\n  uint32_t current_time;         //ms\r\n",
+	"expansionDefinitions": "\r\n  NOT   =====>   !\r\n  AND   =====>   &&\r\n  OR    =====>   ||\r\n\r\n  state_entered_at ======> sm->vars.$$\r\n  cool_down_duration   ======> sm->vars.$$\r\n  onoff_time_left   ======> sm->vars.$$\r\n  enable_time_left   ======> sm->vars.$$\r\n  relay_output   ======> sm->vars.$$\r\n  step_duration   ======> sm->vars.$$\r\n  current_time =====>  sm->vars.$$\r\n\r\n  time_in_state() =====> (current_time - state_entered_at)\r\n\r\n  turn_on_output() =====> relay_output = true\r\n  turn_off_output() =====> relay_output = false\r\n\r\n  dec_duration(duration)  =====> (dec_duration_by(&{{duration}}, step_duration))\r\n\r\n  on_off_request  =====> params.requests.current.$$\r\n  xable_request   =====> params.requests.current.$$\r\n\r\n  clear_requests()  =====> on_off_request = OnOffRequest_NONE; xable_request = XableRequest_NONE\r\n\r\n  on_req ====> (on_off_request == OnOffRequest_ON)\r\n  enabled_req  ====> (xable_request == XableRequest_ENABLE)\r\n\r\n\r\n  onoff_timed_out   ====> (onoff_time_left <= 0)\r\n  enabled_timed_out ====> (enable_time_left <= 0)\r\n\r\n  on_off_request_duration         ======> params.requests.current.on_off_request_duration\r\n  set_onoff_timeout_dur(duration) ======> (onoff_time_left = {{duration}})\r\n  set_onoff_timeout_from_req()    ======> set_onoff_timeout_dur(on_off_request_duration)\r\n\r\n  xable_request_duration         ======> params.requests.current.xable_request_duration\r\n  set_enabled_timeout_from_req()  ======> (enable_time_left = xable_request_duration)\r\n\r\n  pop_onoff_if_req_off()  ======>  pop_onoff_if_req(OnOffRequest_OFF)\r\n  pop_onoff_if_req_on()   ======>  pop_onoff_if_req(OnOffRequest_ON)\r\n  pop_xable_if_req_disable() ====>  pop_xable_if_req(XableRequest_DISABLE)\r\n  pop_xable_if_req_enable()  ====>  pop_xable_if_req(XableRequest_ENABLE)\r\n\r\n  secs(time)  =====> ({{time}}*1000)\r\n  rec_entry_time() =====> (state_entered_at = current_time)\r\n\r\n",
+	"executeBeforeCode": "",
+	"executeAfterCode": "\r\n\r\n",
+	"c_file_top": "\r\n//~anything you want at top of .c file like additional includes\r\n\r\n",
+	"h_file_top": "\r\n//~anything you want at top of .h file like additional includes\r\n#include \"params.h\"\r\n",
+	"cFunctions": "\r\n//~this section is expanded based on expansions\r\n",
+	"cFunctionsNoExp": "",
+	"cPrototypes": "\r\n\r\n",
+	"cPrototypesNoExp": "",
+	"inputValues": "",
+	"outputValues": "",
+	"outputEvents": "",
+	"imports": "",
+	"output_filename": "",
+	"name": "Sm1",
+	"diagramSourceFilePath": "./Sm1.graphml"
+}

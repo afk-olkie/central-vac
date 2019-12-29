@@ -1,0 +1,95 @@
+
+vars
+===============================
+  uint32_t state_entered_at;      //ms
+  int32_t cool_down_duration;     //ms
+  int32_t onoff_time_left;        //ms
+  int32_t enable_time_left;       //ms
+  bool relay_output;              //active high
+  uint32_t step_duration;         //ms
+  uint32_t current_time;         //ms
+/==============================
+
+ 
+expansions
+===============================
+  NOT   =====>   !
+  AND   =====>   &&
+  OR    =====>   ||
+
+  state_entered_at ======> sm->vars.$$
+  cool_down_duration   ======> sm->vars.$$
+  onoff_time_left   ======> sm->vars.$$
+  enable_time_left   ======> sm->vars.$$
+  relay_output   ======> sm->vars.$$
+  step_duration   ======> sm->vars.$$
+  current_time =====>  sm->vars.$$
+
+  time_in_state() =====> (current_time - state_entered_at)
+
+  turn_on_output() =====> relay_output = true
+  turn_off_output() =====> relay_output = false
+
+  dec_duration(duration)  =====> (dec_duration_by(&{{duration}}, step_duration))
+
+  on_off_request  =====> params.requests.current.$$
+  xable_request   =====> params.requests.current.$$
+
+  clear_requests()  =====> on_off_request = OnOffRequest_NONE; xable_request = XableRequest_NONE
+
+  on_req ====> (on_off_request == OnOffRequest_ON)
+  enabled_req  ====> (xable_request == XableRequest_ENABLE)
+
+
+  onoff_timed_out   ====> (onoff_time_left <= 0)
+  enabled_timed_out ====> (enable_time_left <= 0)
+
+  on_off_request_duration         ======> params.requests.current.on_off_request_duration
+  set_onoff_timeout_dur(duration) ======> (onoff_time_left = {{duration}})
+  set_onoff_timeout_from_req()    ======> set_onoff_timeout_dur(on_off_request_duration)
+
+  xable_request_duration         ======> params.requests.current.xable_request_duration
+  set_enabled_timeout_from_req()  ======> (enable_time_left = xable_request_duration)
+
+  pop_onoff_if_req_off()  ======>  pop_onoff_if_req(OnOffRequest_OFF)
+  pop_onoff_if_req_on()   ======>  pop_onoff_if_req(OnOffRequest_ON)
+  pop_xable_if_req_disable() ====>  pop_xable_if_req(XableRequest_DISABLE)
+  pop_xable_if_req_enable()  ====>  pop_xable_if_req(XableRequest_ENABLE)
+
+  secs(time)  =====> ({{time}}*1000)
+  rec_entry_time() =====> (state_entered_at = current_time)
+
+/==============================
+
+
+execute_after_dispatch
+=======================
+
+/======================
+
+
+
+h_file_top
+================
+//~anything you want at top of .h file like additional includes
+#include "params.h"
+/================
+
+c_file_top
+==================
+//~anything you want at top of .c file like additional includes
+
+/==================
+
+
+c_functions
+==================
+//~this section is expanded based on expansions
+/=================
+
+
+c_prototypes
+==================
+
+/=================
+
